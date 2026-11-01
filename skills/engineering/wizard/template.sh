@@ -139,6 +139,10 @@ ask_secret() {
 # a symlink and keeps an existing file's mode.
 write_env() {
   local key="$1" value="$2" tmp sq="'\\''"
+  if [[ "$value" == *$'\n'* || "$value" == *$'\r'* ]]; then
+    warn "$key: value contains a newline; .env values must be single-line"
+    return 1
+  fi
   [[ -e "$ENV_FILE" ]] || (umask 077 && : > "$ENV_FILE")
   tmp=$(mktemp)
   grep -vE "^${key}=" "$ENV_FILE" > "$tmp" || true
